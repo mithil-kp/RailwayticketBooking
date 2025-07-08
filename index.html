@@ -49,7 +49,7 @@
     }
     .modal-content {
       background: white;
-      margin: 10% auto;
+      margin: 5% auto;
       padding: 20px;
       width: 40%;
       border-radius: 5px;
@@ -63,20 +63,7 @@
     }
     #qrcode {
       margin-top: 20px;
-    }
-    #downloadBtn {
-      display: none;
-      margin-top: 15px;
-      padding: 10px 15px;
-      background-color: #004d99;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      text-decoration: none;
       cursor: pointer;
-    }
-    #downloadBtn:hover {
-      background-color: #003366;
     }
   </style>
 </head>
@@ -116,8 +103,9 @@
       <h2>Confirm Booking</h2>
       <p id="bookingDetails"></p>
       <button onclick="confirmBooking()">Confirm</button>
-      <div id="qrcode"></div>
-      <a id="downloadBtn" download="ticket-qr.png">Download QR Code</a>
+      <a id="qrcodeLink" style="display: none;" download="ticket-qr.png">
+        <div id="qrcode"></div>
+      </a>
     </div>
   </div>
 
@@ -156,13 +144,13 @@
 
       currentBooking = { train: train.name, from, to, departure: train.departure, arrival: train.arrival, date };
 
-      const detailsDisplay = 
+      const detailsDisplay =
         `Train: ${currentBooking.train}\nFrom: ${currentBooking.from}\nTo: ${currentBooking.to}\nDeparture: ${currentBooking.departure}\nArrival: ${currentBooking.arrival}\nDate: ${currentBooking.date}`;
       document.getElementById("bookingDetails").innerText = detailsDisplay;
 
       document.getElementById("qrcode").innerHTML = "";
-      document.getElementById("downloadBtn").style.display = "none";
       document.getElementById("bookingModal").style.display = "block";
+      document.getElementById("qrcodeLink").style.display = "none";
     }
 
     function confirmBooking() {
@@ -171,7 +159,6 @@
       const qrContainer = document.getElementById("qrcode");
       qrContainer.innerHTML = "";
 
-      // Build URL with query parameters pointing to ticket.html
       const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/') + 'ticket.html';
       const urlParams = new URLSearchParams(currentBooking).toString();
       const fullUrl = `${baseUrl}?${urlParams}`;
@@ -185,14 +172,15 @@
         correctLevel: QRCode.CorrectLevel.H
       });
 
-      setTimeout(() => {
-        const qrImage = qrContainer.querySelector('img');
-        const downloadBtn = document.getElementById("downloadBtn");
-        if (qrImage && qrImage.src) {
-          downloadBtn.href = qrImage.src;
-          downloadBtn.style.display = "inline-block";
+      const checkCanvas = setInterval(() => {
+        const canvas = qrContainer.querySelector("canvas");
+        if (canvas) {
+          clearInterval(checkCanvas);
+          const link = document.getElementById("qrcodeLink");
+          link.href = canvas.toDataURL("image/png");
+          link.style.display = "inline-block";
         }
-      }, 500);
+      }, 100);
     }
 
     document.querySelector(".close").onclick = function() {
