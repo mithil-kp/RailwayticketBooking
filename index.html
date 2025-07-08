@@ -10,6 +10,9 @@
       margin: 0;
       padding: 0;
       background: #f4f4f4;
+      background-image: image-set('bg.jpg');
+      background-repeat: no-repeat;
+      background-size: cover;
     }
     header {
       background-color: #f5870a;
@@ -19,14 +22,22 @@
       font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif      
     }
     .search-section {
+      margin-left: 38%;
+      margin-top: 5%;
+      align-content: center;
       padding: 20px;
       text-align: center;
-      background-color: rgb(255, 255, 255);
-    }
+      background-color: aqua;
+      height: 300px;
+      width: 300px;
+      background: transparent;
+      border:bisque
+      }
     input, button {
       padding: 10px;
       margin: 10px;
-      font-family:Georgia, 'Times New Roman', Times, serif
+      font-family:Georgia, 'Times New Roman', Times, serif;
+      width: 200px;
     }
     table {
       width: 90%;
@@ -76,9 +87,9 @@
 
   <section class="search-section">
     <form id="searchForm">
-      <input type="text" id="fromStation" placeholder="From" required />
-      <input type="text" id="toStation" placeholder="To" required />
-      <input type="date" id="travelDate" required />
+      <input type="text" id="fromStation" placeholder="From" required /><br>
+      <input type="text" id="toStation" placeholder="To" required /><br>
+      <input type="date" id="travelDate" required /><br>
       <button type="submit">Search Trains</button>
     </form>
   </section>
