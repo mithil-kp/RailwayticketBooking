@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ticket Details</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0; padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      height: 100vh;
+    }
+    .ticket-container {
+      background: white;
+      padding: 25px 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ccc;
+      max-width: 400px;
+      width: 100%;
+      white-space: pre-line;
+    }
+    h1 {
+      text-align: center;
+      color: #004d99;
+      margin-bottom: 25px;
+    }
+  </style>
+</head>
+<body>
+  <div class="ticket-container" id="ticketDetails">
+    <h1>Booking Details</h1>
+    <p>Loading details...</p>
+  </div>
+
+  <script>
+    function getQueryParams() {
+      const params = {};
+      const search = window.location.search.substring(1);
+      search.split("&").forEach(pair => {
+        const [key, value] = pair.split("=");
+        if (key) params[decodeURIComponent(key)] = decodeURIComponent(value || "");
+      });
+      return params;
+    }
+
+    const params = getQueryParams();
+    const container = document.getElementById("ticketDetails");
+
+    if (Object.keys(params).length === 0) {
+      container.innerHTML = "<h1>No Booking Details Found</h1>";
+    } else {
+      const details = 
+        `Train: ${params.train || 'N/A'}\n` +
+        `From: ${params.from || 'N/A'}\n` +
+        `To: ${params.to || 'N/A'}\n` +
+        `Departure: ${params.departure || 'N/A'}\n` +
+        `Arrival: ${params.arrival || 'N/A'}\n` +
+        `Date: ${params.date || 'N/A'}`;
+
+      container.innerHTML = "<h1>Booking Details</h1><pre>" + details + "</pre>";
+    }
+  </script>
+</body>
+</html>

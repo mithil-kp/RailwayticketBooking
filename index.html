@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Railway Ticket Booking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+    }
+    header {
+      background-color: #004d99;
+      color: white;
+      text-align: center;
+      padding: 20px 0;
+    }
+    .search-section {
+      padding: 20px;
+      text-align: center;
+      background-color: white;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+    }
+    table {
+      width: 90%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background: white;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background: white;
+      margin: 10% auto;
+      padding: 20px;
+      width: 40%;
+      border-radius: 5px;
+      text-align: center;
+      white-space: pre-line;
+    }
+    .close {
+      float: right;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    #qrcode {
+      margin-top: 20px;
+    }
+    #downloadBtn {
+      display: none;
+      margin-top: 15px;
+      padding: 10px 15px;
+      background-color: #004d99;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    #downloadBtn:hover {
+      background-color: #003366;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Railway Ticket Booking</h1>
+  </header>
+
+  <section class="search-section">
+    <form id="searchForm">
+      <input type="text" id="fromStation" placeholder="From" required />
+      <input type="text" id="toStation" placeholder="To" required />
+      <input type="date" id="travelDate" required />
+      <button type="submit">Search Trains</button>
+    </form>
+  </section>
+
+  <section class="results-section" id="resultsSection" style="display:none;">
+    <h2>Available Trains</h2>
+    <table id="resultsTable">
+      <thead>
+        <tr>
+          <th>Train Name</th>
+          <th>Departure</th>
+          <th>Arrival</th>
+          <th>Seats Available</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <div id="bookingModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Confirm Booking</h2>
+      <p id="bookingDetails"></p>
+      <button onclick="confirmBooking()">Confirm</button>
+      <div id="qrcode"></div>
+      <a id="downloadBtn" download="ticket-qr.png">Download QR Code</a>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    const dummyTrains = [
+      { name: "Express 101", departure: "10:00", arrival: "14:00", seats: 25 },
+      { name: "FastLine 202", departure: "11:30", arrival: "15:30", seats: 40 },
+      { name: "Regional 303", departure: "13:00", arrival: "18:00", seats: 12 }
+    ];
+
+    document.getElementById("searchForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const tbody = document.querySelector("#resultsTable tbody");
+      tbody.innerHTML = "";
+      dummyTrains.forEach((train, index) => {
+        const row = `<tr>
+          <td>${train.name}</td>
+          <td>${train.departure}</td>
+          <td>${train.arrival}</td>
+          <td>${train.seats}</td>
+          <td><button onclick="openBooking(${index})">Book</button></td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+      document.getElementById("resultsSection").style.display = "block";
+    });
+
+    let currentBooking = null;
+
+    function openBooking(index) {
+      const train = dummyTrains[index];
+      const from = document.getElementById("fromStation").value;
+      const to = document.getElementById("toStation").value;
+      const date = document.getElementById("travelDate").value;
+
+      currentBooking = { train: train.name, from, to, departure: train.departure, arrival: train.arrival, date };
+
+      const detailsDisplay = 
+        `Train: ${currentBooking.train}\nFrom: ${currentBooking.from}\nTo: ${currentBooking.to}\nDeparture: ${currentBooking.departure}\nArrival: ${currentBooking.arrival}\nDate: ${currentBooking.date}`;
+      document.getElementById("bookingDetails").innerText = detailsDisplay;
+
+      document.getElementById("qrcode").innerHTML = "";
+      document.getElementById("downloadBtn").style.display = "none";
+      document.getElementById("bookingModal").style.display = "block";
+    }
+
+    function confirmBooking() {
+      alert("Booking Confirmed!");
+
+      const qrContainer = document.getElementById("qrcode");
+      qrContainer.innerHTML = "";
+
+      // Build URL with query parameters pointing to ticket.html
+      const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/') + 'ticket.html';
+      const urlParams = new URLSearchParams(currentBooking).toString();
+      const fullUrl = `${baseUrl}?${urlParams}`;
+
+      new QRCode(qrContainer, {
+        text: fullUrl,
+        width: 128,
+        height: 128,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      setTimeout(() => {
+        const qrImage = qrContainer.querySelector('img');
+        const downloadBtn = document.getElementById("downloadBtn");
+        if (qrImage && qrImage.src) {
+          downloadBtn.href = qrImage.src;
+          downloadBtn.style.display = "inline-block";
+        }
+      }, 500);
+    }
+
+    document.querySelector(".close").onclick = function() {
+      document.getElementById("bookingModal").style.display = "none";
+    };
+  </script>
+</body>
+</html>
